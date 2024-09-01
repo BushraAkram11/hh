@@ -1,5 +1,5 @@
 streamlit
-streamlit-chat==0.0.1
+streamlit-chat
 langchain
 langchain-google-genai
 faiss-cpu
