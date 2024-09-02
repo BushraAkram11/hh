@@ -22,3 +22,4 @@ faiss-cpu==1.8.0
 yarl==1.9.6
 langchain-google-genai==1.0.10
 pydantic==2.8.2
+google-generativeai==0.5.4
