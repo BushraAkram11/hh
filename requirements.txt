@@ -17,7 +17,6 @@ google-auth-oauthlib==1.2.0
 fitz==0.0.1.dev2
 requests
 starlette==0.37.2
-langchain-google-genai==1.0.6
 sentence-transformers
 faiss-cpu==1.8.0
 yarl==1.9.6
