@@ -22,3 +22,4 @@ sentence-transformers
 faiss-cpu==1.8.0
 yarl==1.9.6
 pydantic
+langchain-google-genai
