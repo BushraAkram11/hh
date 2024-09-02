@@ -2,8 +2,7 @@ import os
 import streamlit as st
 from streamlit_chat import message
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough, RunnableParallel
@@ -62,7 +61,6 @@ def main():
 
     # Use the direct download link for Google Drive PDF
     pdf_url = "https://drive.google.com/uc?export=download&id=1YN_vxYFcLGeTQ6KU4LCDmb-A5IMQPtGq"
-
     default_google_api_key = ""
     
     google_api_key = user_google_api_key if user_google_api_key else default_google_api_key
@@ -71,7 +69,7 @@ def main():
     if st.session_state.processComplete is None:
         files_text = load_pdf_from_url(pdf_url)
         text_chunks = get_text_chunks(files_text)
-        vectorstore = get_vectorstore(text_chunks)
+        vectorstore = get_vectorstore(text_chunks, google_api_key)
         st.session_state.conversation = vectorstore
         st.session_state.processComplete = True
     
@@ -94,17 +92,19 @@ def main():
 # Function to split text into larger chunks with more overlap
 def get_text_chunks(text):
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=2000,  # Increased chunk size
-        chunk_overlap=400,  # Increased overlap
+        chunk_size=1500,  # Increase chunk size
+        chunk_overlap=300,  # Increase overlap
         length_function=len,
         is_separator_regex=False,
     )
     return text_splitter.split_text(text)
 
-# Function to generate vector store from text chunks
-def get_vectorstore(text_chunks):
-    embeddings = HuggingFaceEmbeddings(model_name="all-MPNet-base-v2")  # More powerful embeddings model
-    knowledge_base = FAISS.from_texts(text_chunks, embeddings)
+# Function to generate vector store from text chunks using Gemini embeddings
+def get_vectorstore(text_chunks, google_api_key):
+    gemini_embeddings = GoogleGenerativeAIEmbeddings(
+        model="models/embedding-001", google_api_key=google_api_key
+    )
+    knowledge_base = FAISS.from_texts(text_chunks, gemini_embeddings)
     return knowledge_base
 
 # Function to perform question answering with Google Generative AI
@@ -116,12 +116,13 @@ Please ensure your answer is as detailed as possible, including all relevant inf
 Question: {question}
 """
 
+
         prompt = ChatPromptTemplate.from_template(template)
-        retriever = vector_db.as_retriever(search_type="similarity", search_kwargs={"k": 7})  # Increased k to fetch more context
+        retriever = vector_db.as_retriever(search_type="similarity", search_kwargs={"k": 5})  # Increase k to fetch more context
         setup_and_retrieval = RunnableParallel(
             {"context": retriever, "question": RunnablePassthrough()})
 
-        model = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.8, google_api_key=google_api_key)  # Adjusted temperature for more detailed responses
+        model = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.7, google_api_key=google_api_key)  # Adjust temperature for more detailed responses
         output_parser = StrOutputParser()
         rag_chain = (
             setup_and_retrieval
