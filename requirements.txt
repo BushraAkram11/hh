@@ -1,4 +1,4 @@
-streamlit==1.36.0
+streamlit==1.35.0
 streamlit-chat==0.1.1
 PyMuPDF==1.24.5
 requests==2.32.3
@@ -17,9 +17,6 @@ google-auth-oauthlib==1.2.0
 fitz==0.0.1.dev2
 requests
 starlette==0.37.2
+langchain-google-genai==1.0.6
 sentence-transformers
 faiss-cpu==1.8.0
-yarl==1.9.6
-langchain-google-genai==1.0.10
-pydantic==1.10.11
-google-generativeai
